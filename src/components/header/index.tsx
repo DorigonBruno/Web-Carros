@@ -9,9 +9,12 @@ const Header = () => {
         <Link to="/">
           <img src={Logo} alt="logo web carros" />
         </Link>
-        <button className="cursor-pointer border p-2 rounded-full">
-          <FaUser size={22} color="#000" />
-        </button>
+
+        <Link to="/login">
+          <button className="cursor-pointer border p-2 rounded-full">
+            <FaUser size={22} color="#000" />
+          </button>
+        </Link>
       </nav>
     </header>
   );
