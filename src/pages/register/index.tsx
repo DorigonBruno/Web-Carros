@@ -26,7 +26,7 @@ const Register = () => {
 
       <Link
         to="/login"
-        className="mt-10 text-gray-600 font-light hover:font-medium transition ease-in-out"
+        className="mt-10 text-gray-600 font-light hover:font-medium transition ease-in-out text-sm md:text-base"
       >
         <span>Já possui uma conta? Faça login</span>
       </Link>
