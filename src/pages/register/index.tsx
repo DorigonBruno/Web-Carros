@@ -13,7 +13,10 @@ const schema = z.object({
     .email("Insira um email válido")
     .nonempty("O campo Email é obrigatório"),
 
-  password: z.string().nonempty("O campo senha é obrigatório"),
+  password: z
+    .string()
+    .min(6, "A senha deve conter pelo menos 6 caracteres")
+    .nonempty("O campo senha é obrigatório"),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -51,7 +54,7 @@ const Register = () => {
         />
 
         <Input
-          type="text"
+          type="email"
           name="email"
           placeholder="Digite o email.."
           register={register}
@@ -78,7 +81,7 @@ const Register = () => {
         to="/login"
         className="mt-10 text-gray-600 font-light hover:font-medium transition ease-in-out text-sm md:text-base"
       >
-        <span>Já possui uma conta? Faça login</span>
+        Já possui uma conta? Faça login
       </Link>
     </main>
   );

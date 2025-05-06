@@ -68,7 +68,7 @@ const Login = () => {
         to="/register"
         className="mt-10 text-gray-600 font-light hover:font-medium transition ease text-sm md:text-base"
       >
-        <span>Ainda não possui uma conta? Cadastre-se</span>
+       Ainda não possui uma conta? Cadastre-se
       </Link>
     </main>
   );
