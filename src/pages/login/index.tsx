@@ -45,6 +45,9 @@ const Login = () => {
         password: dataLogin.password,
       });
 
+
+      
+
       console.log("Logado com sucesso");
       navigate("/dashboard", { replace: true });
     } catch (error) {
