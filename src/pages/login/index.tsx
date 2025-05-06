@@ -1,9 +1,11 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Logo from "../../assets/Group 496.svg";
 import { Input } from "../../components/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+import supabase from "../../services/supabaseClient";
 
 const schema = z.object({
   email: z
@@ -17,6 +19,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const Login = () => {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -26,8 +29,18 @@ const Login = () => {
     mode: "onChange",
   });
 
-  function onSubmit(data: FormData) {
-    console.log(data);
+  async function onSubmit(dataLogin: FormData) {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: dataLogin.email,
+        password: dataLogin.password,
+      });
+
+      console.log("Logado com sucesso");
+      navigate("/dashboard", { replace: true });
+    } catch (error) {
+      console.log("Erro ao fazer login", error);
+    }
   }
 
   return (
@@ -68,7 +81,7 @@ const Login = () => {
         to="/register"
         className="mt-10 text-gray-600 font-light hover:font-medium transition ease text-sm md:text-base"
       >
-       Ainda não possui uma conta? Cadastre-se
+        Ainda não possui uma conta? Cadastre-se
       </Link>
     </main>
   );

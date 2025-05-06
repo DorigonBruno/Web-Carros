@@ -1,10 +1,11 @@
 import Logo from "../../assets/Group 496.svg";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Input } from "../../components/input";
-
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+import supabase from "../../services/supabaseClient";
 
 const schema = z.object({
   name: z.string().nonempty("O campo Nome é obrigatório"),
@@ -22,6 +23,8 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const Register = () => {
+  const navigate = useNavigate();
+
   const {
     handleSubmit,
     register,
@@ -31,8 +34,27 @@ const Register = () => {
     mode: "onChange",
   });
 
-  function onSubmit(data: FormData) {
-    console.log(data);
+  async function onSubmit(dataRegister: FormData) {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: dataRegister.email,
+        password: dataRegister.password,
+        options: {
+          data: {
+            name: dataRegister.name,
+          },
+        },
+      });
+
+      if (error) {
+        console.log("Erro ao cadastrar", error.message);
+        return;
+      }
+
+      navigate("/dashboard", { replace: true });
+    } catch (error) {
+      console.log("ERRO AO CADASTRAR USUÀRIO", error);
+    }
   }
 
   return (
