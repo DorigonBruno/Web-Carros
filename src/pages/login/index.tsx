@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import Logo from "../../assets/Group 496.svg";
 import { Input } from "../../components/input";
@@ -28,6 +29,14 @@ const Login = () => {
     resolver: zodResolver(schema),
     mode: "onChange",
   });
+
+  useEffect(() => {
+    async function handleLogout() {
+      await supabase.auth.signOut();
+    }
+
+    handleLogout();
+  }, []);
 
   async function onSubmit(dataLogin: FormData) {
     try {
