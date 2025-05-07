@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, replace, useNavigate } from "react-router";
 import Logo from "../../assets/Group 496.svg";
 import { Input } from "../../components/input";
 import { useForm } from "react-hook-form";
@@ -44,9 +44,6 @@ const Login = () => {
         email: dataLogin.email,
         password: dataLogin.password,
       });
-
-
-      
 
       console.log("Logado com sucesso");
       navigate("/dashboard", { replace: true });
