@@ -1,5 +1,12 @@
+import Container from "../../components/container";
+import { DashboardHeadr } from "../../components/painelheader";
+
 const Dashboard = () => {
-  return <div>página Dashboard</div>;
+  return (
+    <Container>
+      <DashboardHeadr></DashboardHeadr>
+    </Container>
+  );
 };
 
 export default Dashboard;

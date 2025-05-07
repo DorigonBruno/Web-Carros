@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import Logo from "../../assets/Group 496.svg";
 import { Link, useNavigate } from "react-router";
 import { Input } from "../../components/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AuthContext } from "../../context/authContext";
 
 import supabase from "../../services/supabaseClient";
 
@@ -24,6 +25,8 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const Register = () => {
+  const { handleInfoUser, user } = useContext(AuthContext);
+
   const navigate = useNavigate();
 
   const {
@@ -59,6 +62,12 @@ const Register = () => {
         console.log("Erro ao cadastrar", error.message);
         return;
       }
+
+      handleInfoUser({
+        email: data.user?.email || null,
+        name: data.user?.user_metadata.name || null,
+        id: user?.id || "",
+      });
 
       navigate("/dashboard", { replace: true });
     } catch (error) {

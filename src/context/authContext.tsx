@@ -4,6 +4,8 @@ import supabase from "../services/supabaseClient";
 type AuthContextData = {
   signed: boolean;
   loadingAuth: boolean;
+  handleInfoUser: ({ name, email, id }: UserProps) => void;
+  user: UserProps | null;
 };
 
 interface AuthProviderProps {
@@ -63,8 +65,18 @@ function AuthProvider({ children }: AuthProviderProps) {
     };
   }, []);
 
+  function handleInfoUser({ name, email, id }: UserProps) {
+    setUser({
+      name,
+      email,
+      id,
+    });
+  }
+
   return (
-    <AuthContext.Provider value={{ signed: !!user, loadingAuth }}>
+    <AuthContext.Provider
+      value={{ signed: !!user, loadingAuth, handleInfoUser, user }}
+    >
       {children}
     </AuthContext.Provider>
   );

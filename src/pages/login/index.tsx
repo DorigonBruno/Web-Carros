@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link, replace, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Logo from "../../assets/Group 496.svg";
 import { Input } from "../../components/input";
 import { useForm } from "react-hook-form";
@@ -21,6 +21,7 @@ type FormData = z.infer<typeof schema>;
 
 const Login = () => {
   const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -45,7 +46,12 @@ const Login = () => {
         password: dataLogin.password,
       });
 
-      console.log("Logado com sucesso");
+      if (error) {
+        console.log("erro ao fazer login", error);
+        return;
+      }
+
+      console.log("Login realizado com sucesso:", data);
       navigate("/dashboard", { replace: true });
     } catch (error) {
       console.log("Erro ao fazer login", error);
