@@ -1,3 +1,4 @@
+import { ChangeEvent, useContext, useState } from "react";
 import Container from "../../../components/container";
 import { Input } from "../../../components/input";
 import { DashboardHeader } from "../../../components/painelheader";
@@ -6,8 +7,8 @@ import { FiUpload } from "react-icons/fi";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { v4 as uuidV4 } from "uuid";
 import { AuthContext } from "../../../context/authContext";
-import { useContext } from "react";
 import supabase from "../../../services/supabaseClient";
 
 const schema = z.object({
@@ -29,8 +30,17 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
+export interface ImageProps {
+  uid: string;
+  name: string;
+  previewUrl: string;
+  url: string;
+  path: string;
+}
+
 const New = () => {
   const { user } = useContext(AuthContext);
+  const [images, setImages] = useState<ImageProps[]>([]);
 
   const {
     handleSubmit,
@@ -41,6 +51,60 @@ const New = () => {
     resolver: zodResolver(schema),
     mode: "onChange",
   });
+
+  async function handleFile(e: ChangeEvent<HTMLInputElement>) {
+    if (e.target.files && e.target.files[0]) {
+      const image = e.target.files[0];
+
+      if (image.type === "image/jpeg" || image.type === "image/png") {
+        await handleUpload(image);
+      } else {
+        console.log("Envie uma imagem JPEG ou PNG");
+        return null;
+      }
+    }
+  }
+
+  async function handleUpload(image: File) {
+    if (!user?.id) {
+      console.error("Usuário não autenticado");
+      return null;
+    }
+
+    try {
+      const currentUid = user?.id;
+      const uidImage = uuidV4();
+      const uploadRef = `images/${user.id}/${uidImage}`;
+
+      const { error } = await supabase.storage
+        .from("images")
+        .upload(uploadRef, image);
+
+      if (error) {
+        console.error("Erro ao enviar imagem:", error);
+        return null;
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("images").getPublicUrl(uploadRef);
+
+      const imageItem = {
+        name: uidImage,
+        uid: currentUid,
+        previewUrl: URL.createObjectURL(image),
+        url: publicUrl,
+        path: uploadRef,
+      };
+
+      setImages((allImages) => [...allImages, imageItem]);
+    } catch (error) {
+      console.error("Erro durante o upload:", error);
+      return null;
+    }
+  }
+
+  async function onSubmit(data: FormData) {}
 
   return (
     <Container>
@@ -56,13 +120,14 @@ const New = () => {
               className="opacity-0 cursor-pointer"
               type="file"
               accept="image/*"
+              onChange={handleFile}
             />
           </div>
         </button>
       </div>
 
       <div className="w-full bg-white p-3 rounded-lg flex flex-col sm:flex-row items-center gap-2 mt-2">
-        <form className="w-full">
+        <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-1">
             <p>Nome do carro</p>
 
@@ -165,7 +230,7 @@ const New = () => {
             </textarea>
           </div>
 
-          <button className="w-full bg-black text-white p-1 font-medium cursor-pointer my-10 hover:bg-gray-700 transition ease-in-out">
+          <button className="w-full h-10 bg-black text-white p-1 font-medium cursor-pointer mt-10 mb-5 hover:bg-gray-700 transition ease-in rounded-lg">
             Cadastrar Carro
           </button>
         </form>
