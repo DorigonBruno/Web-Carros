@@ -2,7 +2,7 @@ import { ChangeEvent, useContext, useState } from "react";
 import Container from "../../../components/container";
 import { Input } from "../../../components/input";
 import { DashboardHeader } from "../../../components/painelheader";
-import { FiUpload } from "react-icons/fi";
+import { FiUpload, FiTrash } from "react-icons/fi";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,7 +40,6 @@ export interface ImageProps {
 
 const New = () => {
   const { user } = useContext(AuthContext);
-  const [images, setImages] = useState<ImageProps[]>([]);
 
   const {
     handleSubmit,
@@ -51,6 +50,8 @@ const New = () => {
     resolver: zodResolver(schema),
     mode: "onChange",
   });
+
+  const [images, setImages] = useState<ImageProps[]>([]);
 
   async function handleFile(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files[0]) {
@@ -106,6 +107,19 @@ const New = () => {
 
   async function onSubmit(data: FormData) {}
 
+  async function handleDeleteImage(image: ImageProps) {
+    const imagePath = `images/${image.uid}/${image.name}`;
+
+    try {
+      await supabase.storage.from("images").remove([imagePath]);
+
+      setImages((prevImages) => {
+        return prevImages.filter((item) => item.url !== image.url);
+      });
+    } catch (err) {
+      console.log("Erro ao deletar imagem", err);
+    }
+  }
   return (
     <Container>
       <DashboardHeader />
@@ -124,6 +138,25 @@ const New = () => {
             />
           </div>
         </button>
+
+        {images.map((image) => (
+          <div
+            key={image.name}
+            className="w-full flex justify-center items-center h-32 relative"
+          >
+            <button
+              className="cursor-pointer absolute"
+              onClick={() => handleDeleteImage(image)}
+            >
+              <FiTrash size={28} color="#fff" />
+            </button>
+            <img
+              src={image.previewUrl}
+              className="rounded-lg w-full h-32 object-cover"
+              alt="Foto do carro"
+            />
+          </div>
+        ))}
       </div>
 
       <div className="w-full bg-white p-3 rounded-lg flex flex-col sm:flex-row items-center gap-2 mt-2">
