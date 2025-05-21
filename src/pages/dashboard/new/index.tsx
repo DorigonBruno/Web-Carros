@@ -38,6 +38,21 @@ export interface ImageProps {
   path: string;
 }
 
+interface CarData {
+  name: string;
+  model: string;
+  year: string;
+  km: string;
+  price: string;
+  city: string;
+  whatsapp: string;
+  description: string;
+  images: ImageProps[];
+  owner?: string;
+  user_id: string;
+  created_at: string;
+}
+
 const New = () => {
   const { user } = useContext(AuthContext);
 
@@ -105,7 +120,57 @@ const New = () => {
     }
   }
 
-  async function onSubmit(data: FormData) {}
+  async function onSubmit(data: FormData) {
+    if (images.length === 0) {
+      alert("Insira uma imagem para continuar");
+      return;
+    }
+
+    if (!user?.id) {
+      alert("Usuário não autenticado");
+      return;
+    }
+
+    try {
+      const carPayload: CarData = {
+        name: data.name.trim(),
+        model: data.model.trim(),
+        year: data.year.trim(),
+        km: data.km.trim(),
+        price: data.price.trim(),
+        city: data.city.trim(),
+        whatsapp: data.whatsapp.trim(),
+        description: data.description.trim(),
+        created_at: new Date().toISOString(),
+        owner: user?.name?.trim() || "Anônimo",
+        user_id: user.id,
+        images: images.map((img) => ({
+          uid: img.uid,
+          url: img.url,
+          path: img.path,
+          name: img.name,
+          previewUrl: img.previewUrl,
+        })),
+      };
+
+      const { data: newCar, error } = await supabase
+        .from("cars")
+        .insert(carPayload)
+        .select()
+        .single();
+
+      if (error || !newCar) {
+        console.log("erro ao cadastrar o carro", error);
+        return;
+      }
+
+      reset();
+      setImages([]);
+    } catch (err) {
+      console.log("Erro ao cadastrar carro", err);
+      return;
+    }
+  }
 
   async function handleDeleteImage(image: ImageProps) {
     const imagePath = `images/${image.uid}/${image.name}`;
@@ -263,7 +328,10 @@ const New = () => {
             </textarea>
           </div>
 
-          <button className="w-full h-10 bg-black text-white p-1 font-medium cursor-pointer mt-10 mb-5 hover:bg-gray-700 transition ease-in rounded-lg">
+          <button
+            type="submit"
+            className="w-full h-10 bg-black text-white p-1 font-medium cursor-pointer mt-10 mb-5 hover:bg-gray-700 transition ease-in rounded-lg"
+          >
             Cadastrar Carro
           </button>
         </form>
